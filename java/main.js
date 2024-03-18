@@ -18,8 +18,6 @@ const productos = [
   }
 ]
 function seleccionProducto() {
-
-  // Ingrese el producto
   const codigoProductoSeleccionado = parseFloat(prompt("Hola "+ nombre + "!!" + "\nSeleccione que clase de prenda quiere comprar: \n1.Remera \n2.Pantalon \n3.Short"));
   const productoSeleccionado = productos.find(producto => {
     return producto.id === codigoProductoSeleccionado;
@@ -30,7 +28,6 @@ function seleccionProducto() {
 
 function pedirCantidad (precio) {
   const cantidad = parseFloat(prompt("Cuantas unidades?")) // Ingrese la cantidad
-  // Validar y calcular la cantidad
   const resultado = validarYCalcular(cantidad, precio);
   return {cantidad,preciototal:resultado};
 }
@@ -54,9 +51,7 @@ function seleccionarYMostrarListadoProductos () {
   let deseaContinuarCompra = 'NO';
   const productosEnLaCompra = [];
   do {
-    // Pido el producto
     const producto = seleccionProducto();
-    // Valido si el producto existe
     if (producto) {
       const productoAComprar = {
         nombre: producto.nombre,
@@ -64,16 +59,13 @@ function seleccionarYMostrarListadoProductos () {
         cantidad: 0,
         id: producto.id
       }
-      // Pido cantidad
       const resultado = pedirCantidad(productoAComprar.precio);
-      // Valido la cantidad
       if (typeof resultado.preciototal === 'string') {
         alert('cantidad invalida');
       }
       else {
         productoAComprar.cantidad = resultado.cantidad;
         productoAComprar.precio = resultado.preciototal;
-        // El producto se ingreso, calculo y valido correctamente entonces lo agrego al carro
         productosEnLaCompra.push(productoAComprar);
       }
     } else {
