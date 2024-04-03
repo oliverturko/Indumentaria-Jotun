@@ -1,97 +1,122 @@
-alert("Bienvenido a Indumentaria Jotun");
-let nombre = prompt("Ingrese su nombre");
+
 const productos = [
   {
-      nombre: "Remera",
+      nombre: "Remera Slipknot",
       precio: 1500,
+      img: "./img/slipknot1.jpg",
+      cant: 0,
       id:1,
   },
   {
-      nombre: "Pantalon",
+      nombre: "Short Megadeth",
       precio: 3000,
+      img: "./img/megadeth1.webp",
+      cant: 0,
       id:2,
   },
   {
-      nombre: "Short",
+      nombre: "Short Rammstein",
       precio: 2000,
+      img: "./img/rammstein1.webp",
+      cant: 0,
       id:3,
   }
 ]
-function seleccionProducto() {
-  const codigoProductoSeleccionado = parseFloat(prompt("Hola "+ nombre + "!!" + "\nSeleccione que clase de prenda quiere comprar: \n1.Remera \n2.Pantalon \n3.Short"));
-  const productoSeleccionado = productos.find(producto => {
-    return producto.id === codigoProductoSeleccionado;
+let carrito = JSON.parse(window.localStorage.getItem('carrito')) ?? [];
+
+const main = () => {
+  productos.forEach((producto) => {
+    let div = document.createElement("div");
+    div.classList.add("producto");
+    div.innerHTML = `
+      <img class="producto-img" src="${producto.img}">
+      <h3>${producto.nombre}</h3>
+      <p>$${producto.precio}</p>
+    `;
+    let botonAgregar = document.createElement("button");
+    botonAgregar.id = producto.id;
+    botonAgregar.classList.add("producto-btn");
+    botonAgregar.innerText = "Agregar al carrito";
+    botonAgregar.addEventListener("click",() => {
+      agregarAlCarrito(producto);
+      iniciarElementoCarro();
+      calcularTotal();
+    });
+    div.append(botonAgregar);
+    document.getElementById('productos').append(div);
   })
-  if (!productoSeleccionado) return null;
-  return productoSeleccionado;
+  renderizarCarrito();
 }
 
-function pedirCantidad (precio) {
-  const cantidad = parseFloat(prompt("Cuantas unidades?")) // Ingrese la cantidad
-  const resultado = validarYCalcular(cantidad, precio);
-  return {cantidad,preciototal:resultado};
+const calcularTotal = () => {
+  const total = carrito.reduce((acumulador, producto) => {
+    acumulador += producto.precio * producto.cant;
+    return acumulador;
+  }, 0);
+  const textoTotal = document.getElementById('carrito-total');
+  textoTotal.textContent = `Total: $${total}`;
+  return total;
 }
 
-function validarYCalcular(cantidad, precio){
-  let res = 0;
-    if(!isNaN(cantidad)){
-      res=precio*cantidad;
-      return res;
-    }
-    else{
-    return "Ingrese un numero";
+const iniciarElementoCarro = () => {
+  const elementoCarroVacio = document.getElementById('carrito-vacio');
+  // Si hay elementos en el carrito agrego la clase d-none, sino la quito. (ternario)
+  carrito.length ?
+    elementoCarroVacio.classList.add('d-none') :
+    elementoCarroVacio.classList.remove('d-none');
+}
+
+const renderizarCarrito = () => {
+  const contenedorCarro = document.getElementById('carrito-productos');
+  contenedorCarro.innerHTML = '';
+  carrito.forEach((producto) => {
+    crearNuevoProducto(producto);
+  })
+  iniciarElementoCarro();
+  calcularTotal();
+}
+
+const agregarAlCarrito = (productoAgregado) =>{
+  let producto = carrito.find(producto => producto.id === productoAgregado.id);
+  if (producto) {
+    producto.cant++;
+    const textoProducto = document.getElementById(`producto-carro-${producto.id}`);
+    textoProducto.textContent = ` - Producto: ${producto.nombre} Precio: ${producto.precio} Cantidad: ${producto.cant}`;
+  } else {
+    producto = productoAgregado;
+    producto.cant = 1;
+    carrito.push(producto);
+    crearNuevoProducto(producto);
   }
+  window.localStorage.setItem('carrito', JSON.stringify(carrito));
 }
 
-function mostrarTotalDeCompra (total) {
-   alert('El total de la compra $' + total);
+const crearNuevoProducto = (producto) => {
+  const contenedorProducto = document.createElement('div');
+  contenedorProducto.id = `contenedor-producto-carro-${producto.id}`;
+
+  const texto = document.createElement('p');
+  texto.id = `producto-carro-${producto.id}`;
+  texto.textContent = ` - Producto: ${producto.nombre} Precio: ${producto.precio} Cantidad: ${producto.cant}`;
+
+  botonBorrar = document.createElement('button');
+  botonBorrar.id = `boton-eliminar-producto-carro-${producto.id}`;
+  botonBorrar.innerText = "Eliminar";
+  botonBorrar.addEventListener("click",() => {
+    borrarProducto(producto.id);
+  })
+
+  contenedorProducto.append(texto);
+  contenedorProducto.append(botonBorrar);
+
+  const carritoContenedor = document.getElementById('carrito-productos');
+  carritoContenedor.append(contenedorProducto);
 }
 
-function seleccionarYMostrarListadoProductos () {
-  let deseaContinuarCompra = 'NO';
-  const productosEnLaCompra = [];
-  do {
-    const producto = seleccionProducto();
-    if (producto) {
-      const productoAComprar = {
-        nombre: producto.nombre,
-        precio: producto.precio,
-        cantidad: 0,
-        id: producto.id
-      }
-      const resultado = pedirCantidad(productoAComprar.precio);
-      if (typeof resultado.preciototal === 'string') {
-        alert('cantidad invalida');
-      }
-      else {
-        productoAComprar.cantidad = resultado.cantidad;
-        productoAComprar.precio = resultado.preciototal;
-        productosEnLaCompra.push(productoAComprar);
-      }
-    } else {
-      alert('productoInvalido');
-    }
-
-    deseaContinuarCompra = prompt("Desea continuar comprando? (SI/NO)")
-    console.log(deseaContinuarCompra)
-  } while (deseaContinuarCompra.toUpperCase() === 'SI');
-  return productosEnLaCompra;
+const borrarProducto = (id) => {
+  carrito = carrito.filter(producto => producto.id !== id);
+  window.localStorage.setItem('carrito', JSON.stringify(carrito));
+  renderizarCarrito();
 }
 
-function clickbtn () {
-  const carro = seleccionarYMostrarListadoProductos();
-  if (carro.length === 0) {
-    alert('El carro esta vacio')
-    return;
-  }
-  let totalCarro = 0;
-  let resumenDeCompra = '';
-  carro.forEach((elementoDelCarro) => {
-    totalCarro += elementoDelCarro.precio;
-    resumenDeCompra += '\n\n Nombre del producto ' + elementoDelCarro.nombre;
-    resumenDeCompra += '\n Cantidad ' + elementoDelCarro.cantidad;
-    resumenDeCompra += '\n Precio ' + elementoDelCarro.precio;
-
-    })
-    alert(resumenDeCompra)
-   mostrarTotalDeCompra(totalCarro);}
+main();
