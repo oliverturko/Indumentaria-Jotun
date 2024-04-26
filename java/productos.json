@@ -1,0 +1,23 @@
+[
+    {
+        "nombre": "Remera Slipknot",
+        "precio": 1500,
+        "img": "./img/slipknot1.jpg",
+        "cant": 0,
+        "id":1
+    },
+    {
+        "nombre": "Short Megadeth",
+        "precio": 3000,
+        "img": "./img/megadeth1.webp",
+        "cant": 0,
+        "id":2
+    },
+    {
+        "nombre": "Short Rammstein",
+        "precio": 2000,
+        "img": "./img/rammstein1.webp",
+        "cant": 0,
+        "id":3
+    }
+  ]

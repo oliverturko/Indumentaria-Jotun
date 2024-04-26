@@ -1,30 +1,8 @@
 
-const productos = [
-  {
-      nombre: "Remera Slipknot",
-      precio: 1500,
-      img: "./img/slipknot1.jpg",
-      cant: 0,
-      id:1,
-  },
-  {
-      nombre: "Short Megadeth",
-      precio: 3000,
-      img: "./img/megadeth1.webp",
-      cant: 0,
-      id:2,
-  },
-  {
-      nombre: "Short Rammstein",
-      precio: 2000,
-      img: "./img/rammstein1.webp",
-      cant: 0,
-      id:3,
-  }
-]
 let carrito = JSON.parse(window.localStorage.getItem('carrito')) ?? [];
 
-const main = () => {
+
+const main = (productos) => {
   productos.forEach((producto) => {
     let div = document.createElement("div");
     div.classList.add("producto");
@@ -41,6 +19,14 @@ const main = () => {
       agregarAlCarrito(producto);
       iniciarElementoCarro();
       calcularTotal();
+      Toastify({
+        text: `${producto.nombre} Agregado al carrito`,
+        duration: 3000,
+        stopOnFocus: true,
+        style: {
+          background: "linear-gradient(to right, black, red)",
+        },
+        }).showToast();
     });
     div.append(botonAgregar);
     document.getElementById('productos').append(div);
@@ -116,7 +102,38 @@ const crearNuevoProducto = (producto) => {
 const borrarProducto = (id) => {
   carrito = carrito.filter(producto => producto.id !== id);
   window.localStorage.setItem('carrito', JSON.stringify(carrito));
+  Swal.fire({
+    title: "Borraste un Producto",
+    icon: "info"
+  });
   renderizarCarrito();
 }
 
-main();
+confirmar = document.getElementById("confirmar");
+
+const confirmarCompra = () => {
+  console.log("afasas");
+  if(carrito.length === 0){
+    Swal.fire({
+      title: "¡No hay nada en el Carrito!",
+      icon: "success"})
+  } else{
+  const total = calcularTotal();
+  Swal.fire({
+    title: "¡Gracias por su compra!",
+    text: "La compra tiene un monto de $" + total,
+    icon: "success"
+  }).then((result)=>{
+    carrito = [];
+    window.localStorage.setItem('carrito', JSON.stringify(carrito));
+    renderizarCarrito();
+  }
+  );}
+}
+confirmar.addEventListener("click", confirmarCompra)
+
+fetch("./java/productos.json")
+    .then(response => response.json())
+    .then(productos =>{
+        main(productos);
+    })
